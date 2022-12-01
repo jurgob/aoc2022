@@ -28,14 +28,14 @@ fn part_1(input: &String) -> i32{
 }
 
 fn part_2(input: &String) -> i32{
+    let mut vec = Vec::new();
 
     let lines = input.lines();
-    let mut res = 0;
     let mut cur_elf_calories = 0;
     for line in lines {
 
-        if line.trim().is_empty() {
-            if cur_elf_calories > res  { res = cur_elf_calories}
+        if line.trim().is_empty() {            
+            vec.push(cur_elf_calories);
 
             cur_elf_calories = 0;
 
@@ -44,9 +44,13 @@ fn part_2(input: &String) -> i32{
             cur_elf_calories = cur_elf_calories + calories;
         }
 
-
     }
-    
+
+    vec.sort();
+
+    let len =  vec.len();   
+    let res = vec[len - 3] + vec[len - 2] + vec[len - 1];
+
     res
     
 
