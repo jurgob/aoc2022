@@ -57,22 +57,25 @@ fn translate(s: &str) -> Result<&str,()> {
     }
 }
 
+fn raw_to_score(result: &str) -> i32{
+    
+    let my_figure = result.chars().last().unwrap();
+    let score = match_score(&result).unwrap() + figure_score(&my_figure).unwrap() ;
+    score
+}
+
 fn main() {
     let input = include_str!("../input.txt");
 
     let result:i32 = input.lines().map(|res| {
         let result = res.replace(" ", "");
-        let my_figure = result.chars().last().unwrap();
-        let score = match_score(&result).unwrap() + figure_score(&my_figure).unwrap() ;
-        score
+        raw_to_score(&result)
     }).sum(); 
 
     let result_pt2:i32 = input.lines().map(|res| {
-        let result_not_translated = res.replace(" ", "");
-        let result =translate(&result_not_translated).unwrap(); 
-        let my_figure = result.chars().last().unwrap();
-        let score = match_score(&result).unwrap() + figure_score(&my_figure).unwrap() ;
-        score
+        let res_not_translate = res.replace(" ", "");
+        let result =translate(&res_not_translate).unwrap(); 
+        raw_to_score(&result)
     }).sum(); 
   
     println!("part 1 result: {:?}", result);
