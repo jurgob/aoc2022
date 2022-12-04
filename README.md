@@ -7,4 +7,5 @@ the code is super bad, so if you are searchin good Rust code, keep searching som
 ## Calendar
 - Day 1: [problem](https://adventofcode.com/2022/day/1) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_01/src/main.rs#L60)
 - Day 2: [problem](https://adventofcode.com/2022/day/2) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_02/src/main.rs#L67)
-- Day 3: TODO 
+- Day 3: [problem](https://adventofcode.com/2022/day/3) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_03/src/main.rs#L34)
+- Day 4: TODO 
