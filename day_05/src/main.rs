@@ -11,10 +11,13 @@ fn main() {
     
     let mut i:usize = 0;
 
-    let mut cols:Vec<Vec<char>> =Vec::new();
+    type Cols = Vec<Vec<char>>;
+    let mut cols:Cols =Vec::new();
+    let mut cols_pt2:Cols =Vec::new();
 
     while i < cols_len {
-        cols.insert(i, Vec::new());    
+        cols.insert(i, Vec::new());
+        cols_pt2.insert(i, Vec::new());
         i+=1;
     }
 
@@ -23,10 +26,11 @@ fn main() {
         
         let line_obj  = parse_entry(line);
         line_obj.iter().enumerate().for_each(|(i, item)|{
-            let stack = cols.get_mut(i).unwrap();
+            // let stack = cols.get_mut(i).unwrap();
             
             if *item != ' ' {
-                stack.push(*item);
+                cols.get_mut(i).unwrap().push(*item);
+                cols_pt2.get_mut(i).unwrap().push(*item);
             }
 
         });
@@ -36,10 +40,8 @@ fn main() {
     let moves: Vec<Move> = moves_input.lines().map(|line| {
         parse_move(line)
     }).collect();
-
+    println!("-- PT 1 --");
     println!("cols {:?}",cols );
-    println!("moves {:?}",moves );
-
 
     moves.iter().for_each(| m | {
         let mut i = 0;
@@ -61,6 +63,31 @@ fn main() {
     }).collect();
 
     println!("pt1 res:  {:?}", res );
+    println!("-- PT 2 --");
+    println!("cols {:?}",cols_pt2 );
+
+    moves.iter().for_each(| m | {
+        
+        let col_from = cols_pt2.get_mut(m.1).unwrap();
+        let new_len = col_from.len() - m.0;
+
+        let moving_stuff:Vec<char> = col_from.drain(new_len..).collect();
+                
+        let col_to = cols_pt2.get_mut(m.2).unwrap();
+        moving_stuff.iter().for_each(|c| {
+            col_to.push(*c); 
+        });
+
+       
+    });
+
+    let res_pt2: String = cols_pt2.iter().map(| col| {
+        col.last().unwrap()
+    }).collect();
+
+    println!("pt2 res:  {:?}", res_pt2 );
+
+
 
 }
 
