@@ -9,4 +9,5 @@ the code is super bad, so if you are searchin good Rust code, keep searching som
 - Day 2: [problem](https://adventofcode.com/2022/day/2) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_02/src/main.rs#L67)
 - Day 3: [problem](https://adventofcode.com/2022/day/3) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_03/src/main.rs#L34)
 - Day 4: [problem](https://adventofcode.com/2022/day/4) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_04/src/main.rs#L64)
-- Day 5: TODO 
+- Day 5: [problem](https://adventofcode.com/2022/day/5) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_05/src/main.rs#L2)
+- Day 6: TODO
