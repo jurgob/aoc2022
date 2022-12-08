@@ -41,7 +41,6 @@ impl Terminal {
 }
 
 fn pt_1(input: &str) -> usize { 
-    println!("pt 1 start");
     let mut t = Terminal::new();
     let mut dirs_info = HashMap::new();
 
@@ -57,14 +56,39 @@ fn pt_1(input: &str) -> usize {
                     t.cd(path_move);
                 } else if cmd.starts_with("ls") {
                     let lines = output.lines();
-                    let dir_size: usize = lines.skip(1).filter(|line| {
+                    let dir_size: usize = lines.filter(|line| {
                         !line.starts_with("dir ")
                     }).map(|line|{
                         let size : usize = line.split_once(" ").unwrap().0.parse().unwrap();
                         size
                     }).sum();
-                    println!("add dir info: {}, size: {}", t.get_pwd(), dir_size);
-                    dirs_info.insert(t.get_pwd(), dir_size);
+                    
+                    let pwd = t.get_pwd(); 
+                    // println!("dir insert info: {} size: {}, exists: {}", pwd, dir_size, dirs_info.contains_key(&t.get_pwd()));
+                    // println!("- pwd: {}", pwd);
+                    dirs_info.insert(pwd, dir_size);
+                    
+                    let pwd1 = t.get_pwd();
+
+                    // increment parents size
+                    if pwd1 != "/" {
+                        let mut pwd_split:Vec<&str> = pwd1.split("/").collect();
+                        pwd_split.pop();
+                        while pwd_split.len() > 0 {
+                            let mut p_dir:String = pwd_split.join("/");
+                            if p_dir == "" {
+                                p_dir = "/".to_string();
+                            }
+                            
+                            // println!(" - p_dir: {}", p_dir);
+                            let prev_size = dirs_info.get(&p_dir).unwrap();
+                            let p_dir_size = prev_size + dir_size;
+                            dirs_info.insert(p_dir, p_dir_size);
+                            pwd_split.pop();
+                            
+                        }
+                    }
+                    
 
                 }
             },
@@ -73,10 +97,9 @@ fn pt_1(input: &str) -> usize {
         }
     });
     
-    
-    // println!("dirs_info sizes: {:#?}", dirs_info);
+    // println!("dirs_info: {:#?}", dirs_info);
 
-    let dirs_size_total: usize = dirs_info.values().sum();
+    let dirs_size_total: usize = dirs_info.values().filter(|val | val <= &&100000 ).sum();
     dirs_size_total
 }
 
@@ -140,36 +163,37 @@ mod tests_terminal {
 mod tests_p1 {
     use crate::pt_1;
     
-    #[test]
-    fn p1_works_only_root() {
-        let input = "$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-";
+//     #[test]
+//     fn p1_works_only_root() {
+//         let input = "$ cd /
+// $ ls
+// dir a
+// 14848514 b.txt
+// 8504156 c.dat
+// dir d
+// ";
+//         let res = vec![14848514, 8504156].iter().filter(|val| val >= &&100000).sum();
+//         assert_eq!(pt_1(&input), res);
+//     }
 
-        assert_eq!(pt_1(&input), 14848514 + 8504156);
-    }
+//     #[test]
+//     fn p1_works_root_and_1_sub_dir() {
+//         let input = "$ cd /
+// $ ls
+// dir a
+// 14848514 b.txt
+// 8504156 c.dat
+// dir d
+// $ cd a
+// $ ls
+// dir e
+// 29116 f
+// 2557 g
+// 62596 h.lst";
+//     let res = vec![14848514, 8504156,29116,2557,62596].iter().filter(|val| val >= &&100000).sum();
 
-    #[test]
-    fn p1_works_root_and_1_sub_dir() {
-        let input = "$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst";
-
-        assert_eq!(pt_1(&input), (14848514 + 8504156) +(29116 + 2557 + 62596) );
-    }
+//         assert_eq!(pt_1(&input), res );
+//     }
 
     #[test]
     fn p1_works() {
@@ -196,6 +220,8 @@ $ ls
 8033020 d.log
 5626152 d.ext
 7214296 k";
-        assert_eq!(pt_1(&input), 48381165);
+        assert_eq!(pt_1(&input), 95437);
     }
 }
+
+// 40913445
