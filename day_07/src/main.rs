@@ -121,16 +121,18 @@ fn pt_2(input: &str) -> i32 {
                     t.cd(path_move);
                 } else if cmd.starts_with("ls") {
                     let lines = output.lines();
+                    // println!("lines: {:#?}", lines);
                     let dir_size: i32 = lines.filter(|line| {
                         !line.starts_with("dir ")
                     }).map(|line|{
                         let size : i32 = line.split_once(" ").unwrap().0.parse().unwrap();
+                        // println!("- pwd: {}, size: {}", t.get_pwd(), size);
                         size
                     }).sum();
                     
                     let pwd = t.get_pwd(); 
                     // println!("dir insert info: {} size: {}, exists: {}", pwd, dir_size, dirs_info.contains_key(&t.get_pwd()));
-                    // println!("- pwd: {}", pwd);
+                    // println!("- pwd: {}, dir_size: {}", pwd, dir_size);
                     dirs_info.insert(pwd, dir_size);
                     
                     let pwd1 = t.get_pwd();
@@ -162,15 +164,17 @@ fn pt_2(input: &str) -> i32 {
         }
     });
     
+    println!("dirs_info: {:#?}", dirs_info);
+
     // println!("dirs_info: {:#?}", dirs_info);
     let disk_space_total = 70000000;
     let disk_space_needed = 30000000;
-    let dirs_size_total: i32 = dirs_info.values().sum();
+    let dirs_size_total: i32 = dirs_info.get("/").unwrap().clone();
     let mut res = std::i32::MAX;
 
     for (_dir, size) in dirs_info {
         let new_disk_space = (disk_space_total - dirs_size_total) + size;
-        println!("_dir {} size {} new_disk_space {}", _dir, size, new_disk_space);
+        // println!("_dir {} size {} new_disk_space {}", _dir, size, new_disk_space);
         if new_disk_space > disk_space_needed {
             if size < res {
                 res = size;
@@ -322,7 +326,7 @@ $ cd d
 $ ls
 4060174 j
 8033020 d.log
-8033020 d.ext
+5626152 d.ext
 7214296 k";
 
         assert_eq!(pt_2(&input), 24933642);
