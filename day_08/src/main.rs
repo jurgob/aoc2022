@@ -1,8 +1,8 @@
-use std::fmt::Formatter;
 
 fn main() {
     let input = include_str!("../input.txt");
     println!("pt 1: {}", pt_1(input)); 
+    println!("pt 2: {}", pt_2(input)); 
 
 }
 
@@ -23,25 +23,51 @@ fn pt_1(input: &str) -> usize {
         matrix_visibility.push(row_vec);
     }
 
-    // println!("visibility:");
-    
-    // matrix.iter().for_each(|line|{
-    //     line.iter().for_each(|cell|{
-    //         print!("{:07}", cell.to_string());
-    //     });
-    //     println!("");
-        
-    // });
-    // println!("");
-    // matrix_visibility.iter().for_each(|line|{
-    //     line.iter().for_each(|cell|{
-    //         print!("{:07}", cell);
-    //     });
-    //     println!();
-    // });
-    // println!("{:#?}", matrix_visibility);
-
     count
+}
+
+fn pt_2(input: &str) -> usize {
+    // let mut matrix_visibility: Vec<Vec<bool>> = Vec::new();
+    let matrix = input_2_grid(input);
+    let mut score = 0;
+    for (i, row) in matrix.iter().enumerate() {
+        // let mut row_vec:Vec<bool> = Vec::new();
+        
+        for (j, t) in row.iter().enumerate() {
+            let coords = (i, j);
+            
+            let up_dir = get_direction(coords, Direction::Up, &matrix);
+            let down_dir = get_direction(coords, Direction::Down, &matrix);
+            let left_dir = get_direction(coords, Direction::Left, &matrix);
+            let right_dir = get_direction(coords, Direction::Right, &matrix);
+            let cur_score = get_direction_scenic_score(*t, &up_dir)
+             * get_direction_scenic_score(*t, &down_dir)
+             * get_direction_scenic_score(*t, &left_dir)
+             * get_direction_scenic_score(*t, &right_dir);
+            if cur_score >= score {
+                score = cur_score;
+            }
+            // let is_vis = is_visible((i, j), &matrix);
+            // row_vec.push(is_vis);
+            // if is_vis {
+            //     count += 1;
+            // }
+        }
+        // matrix_visibility.push(row_vec);
+    }
+    score
+    // count
+}
+
+fn get_direction_scenic_score(t: usize, raw:&TreeRaw) -> usize {
+    let mut res = 0;
+    for ele in raw {
+        res = res + 1;
+        if &t <= ele {
+            return res;
+        }
+    }
+    return res;
 }
 
 type TreeMatrix = Vec<TreeRaw>;
@@ -156,8 +182,15 @@ fn get_direction(coords:Coords, direction: Direction, matrix:&TreeMatrix) -> Tre
 
 #[cfg(test)]
 mod tests {
-    use crate::{input_2_grid, is_visible, TreeMatrix, is_visible_from_direction, get_direction, Direction, pt_1, is_visible_from_directions, VisibiltyDirections};
+    use crate::{input_2_grid, is_visible, TreeMatrix, is_visible_from_direction, get_direction, Direction, pt_1, is_visible_from_directions, VisibiltyDirections, get_direction_scenic_score, pt_2};
 
+    #[test]
+    fn get_direction_scenic_score_work(){
+        assert_eq!(get_direction_scenic_score(5, &vec![3,5,3]), 2, "second 5 up");
+        assert_eq!(get_direction_scenic_score(5, &vec![3,3]), 2, "second 5 left");
+        assert_eq!(get_direction_scenic_score(5, &vec![3]), 1, "second 5 down");
+        assert_eq!(get_direction_scenic_score(5, &vec![4,9]), 2, "second 5 right");
+    }
 
     #[test]
     fn test_input_2_grid() {
@@ -264,5 +297,17 @@ mod tests {
 35390";
         assert_eq!(pt_1(input), 21);
     }
+    
+    #[test]
+    fn pt_2_works(){
+        let input = "30373
+25512
+65332
+33549
+35390";
+        assert_eq!(pt_2(input), 8);
+    }
+
+    
 
 }
