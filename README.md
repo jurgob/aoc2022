@@ -11,4 +11,6 @@ the code is super bad, so if you are searchin good Rust code, keep searching som
 - Day 4: [problem](https://adventofcode.com/2022/day/4) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_04/src/main.rs#L64)
 - Day 5: [problem](https://adventofcode.com/2022/day/5) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_05/src/main.rs#L2)
 - Day 6: [problem](https://adventofcode.com/2022/day/6) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_06/src/main.rs#L2)
-- Day 7: TODO
+- Day 7: [problem](https://adventofcode.com/2022/day/7) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_07/src/main.rs#L2)
+- Day 8: [problem](https://adventofcode.com/2022/day/8) | [solution](https://github.com/jurgob/aoc2022/blob/main/day_08/src/main.rs#L2)
+- Day 9: TODO
