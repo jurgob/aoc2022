@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{str::FromStr, ops::Div};
 
 fn main() {
     let input = include_str!("../input.txt");
@@ -27,7 +27,6 @@ impl FromStr for OperationValue {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let op_string = s.split_once("new = old ").unwrap().1;
         let (operation,operation_value) = op_string.split_once(" ").unwrap();
-        println!("operation: {}, operation_value: {}",operation, operation_value);
         match operation {
             "+" => if operation_value == "old" { 
                     Ok(OperationValue::AddSame) 
@@ -77,8 +76,7 @@ fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<i32>>) {
             .filter(|lines|{
                 lines.len() > 1    
             }).for_each(| lines| {
-            println!("-- lines start");
-            println!("{:?}",lines);
+            
             let starting_items = lines.get(1).unwrap().split(": ").collect::<Vec<&str>>().get(1).unwrap().split(", ").map(|item|item.parse::<i32>().unwrap()).collect::<Vec<i32>>();
             monkey_items.push(starting_items);
 
@@ -86,7 +84,6 @@ fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<i32>>) {
             let check_test_value = parse_test_value(lines.get(3).unwrap());
             let if_check_true = parse_throw_to_monkey(lines.get(4).unwrap()) as usize;
             let if_check_false = parse_throw_to_monkey(lines.get(5).unwrap()) as usize;
-            println!("---- lines end");
             monkey_rules.push(MonkeyRules{
                 operation: operation,
                 check_test_value,
@@ -100,28 +97,40 @@ fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<i32>>) {
 }
 
 fn pt_1(input: &str) -> i32 {
-    let (monkey_rules,monkey_items) = parse_input(input);
-    let mut monkey_inspection = monkey_items.iter().map(|_mi| 0).collect::<Vec<i32>>(); 
+    let (monkey_rules,monkey_items_init) = parse_input(input);
+    let mut monkey_inspection = monkey_items_init.iter().map(|_mi| 0).collect::<Vec<i32>>(); 
+    let mut monkey_items = monkey_items_init.clone();
 
-    for _round in 0..20{
-        for monkey_idx in 0..monkey_rules.len()-1 {
+    for _round in 0..20 {
+        for monkey_idx in 0..monkey_rules.len() {
             let cur_monkey_rule = &monkey_rules[monkey_idx];
-            let cur_monkey_items = &monkey_items[monkey_idx];
+            let mut cur_monkey_items = monkey_items[monkey_idx].clone();
             
             let cur_monkey_inspection = cur_monkey_items.len() as i32;
-            while cur_monkey_items.len() >= 0 {
-                // let cur_item = cur_monkey_items.pop().unwrap();
-                // let new_item = apply_operation(cur_item, &cur_monkey_rule.operation);
-                // if new_item > cur_monkey_rule.check_test_value {
-                //     monkey_inspection[cur_monkey_rule.if_check_true] += 1;
-                // } else {
-                //     monkey_inspection[cur_monkey_rule.if_check_false] += 1;
-                // }
+            monkey_inspection[monkey_idx] += cur_monkey_inspection;
+            
+            while cur_monkey_items.len() != 0 {
+                let cur_item = cur_monkey_items.pop().unwrap();
+                let mut new_item = apply_operation(cur_item, &cur_monkey_rule.operation);
+                let new_item_float =  new_item as f32;
+                new_item = new_item_float.div(3.0).floor() as i32;
+                let test_passed = new_item % cur_monkey_rule.check_test_value == 0;
+                if test_passed {
+                    monkey_items[cur_monkey_rule.if_check_true].push(new_item);
+                } else {
+                    monkey_items[cur_monkey_rule.if_check_false].push(new_item);
+                }
             }
+            monkey_items[monkey_idx] = cur_monkey_items;
+
 
         }
     }
-    0
+    monkey_inspection.sort();
+    monkey_inspection.reverse();
+    *monkey_inspection.get(0).unwrap_or(&0) *
+    *monkey_inspection.get(1).unwrap_or(&0)
+    // 0
 }
 
 
@@ -239,6 +248,6 @@ Monkey 3:
     If false: throw to monkey 1";
           
         
-        assert_eq!(pt_1(&input), 0) //TODO
+        assert_eq!(pt_1(&input), 101*105) //TODO
     }
 }
