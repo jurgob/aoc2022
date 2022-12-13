@@ -3,6 +3,8 @@ use std::str::FromStr;
 fn main() { 
     let input = include_str!("../input.txt");
     println!("part 1: {}", pt_1(input));
+    println!("part 2:");
+    println!("{}", pt_2(input));
 }
 
 fn exex_cycles(input: &str) -> Vec<i32> {
@@ -44,6 +46,39 @@ fn pt_1(input: &str) -> i32 {
 
 }
 
+fn pt_2(input: &str) -> String {
+    let cycles:Vec<i32> = exex_cycles(input);
+    let mut res:Vec<Vec<char>> = Vec::new();
+    for i in 0..6 {
+        let mut temp:Vec<char> = Vec::new();
+        for j in 0..40 {
+            let cycle_cur = 40*(i)+j+1;
+            let cycle_val = cycles.get(cycle_cur as usize).unwrap();
+
+            let char_to_add = if j >= *cycle_val-1 && j <= *cycle_val+1  {
+                '#'
+            } else {
+                '.'
+            };
+            temp.push(char_to_add);
+        }
+        res.push(temp);
+    }
+
+    res.iter().for_each(|l| {
+        let line = l.iter().collect::<String>();
+    });
+
+    let res = res.iter().map(|l| {
+        let line = l.iter().collect::<String>();
+        line
+    }).collect::<Vec<String>>().join("\n");
+
+    // println!("{:?}", res);  
+    
+    res
+}
+
 enum Instruction {
     Noop,
     Addx(i32),
@@ -71,6 +106,7 @@ impl FromStr for Instruction {
 #[cfg(test)]
 mod tests {
     use super::pt_1;
+    use super::pt_2;
 
 
     #[test]
@@ -78,5 +114,17 @@ mod tests {
         let input = include_str!("../input-test.txt");
 
         assert_eq!(pt_1(input), 13140);
+    }
+
+    #[test]
+    fn pt_2_test() {
+        let input = include_str!("../input-test.txt");
+        let res = "##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....";
+        assert_eq!(pt_2(input), res);
     }
 }
