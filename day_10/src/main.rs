@@ -5,8 +5,7 @@ fn main() {
     println!("part 1: {}", pt_1(input));
 }
 
-
-fn pt_1(input: &str) -> i32 {
+fn exex_cycles(input: &str) -> Vec<i32> {
     let initial_x = 1;
     let mut cycles:Vec<i32> = vec![initial_x, initial_x];
     input.lines()
@@ -21,21 +20,27 @@ fn pt_1(input: &str) -> i32 {
                 let cur_x = cycles.get(cycles.len() - 1).unwrap().clone();
                 cycles.push(cur_x);  
                 let new_x = cur_x + x;
-                println!("at cycle {} - change x value from {} to {}. x is: {}",cycles.len() , cur_x, new_x, x);
+                // println!("at cycle {} - change x value from {} to {}. x is: {}",cycles.len() , cur_x, new_x, x);
                 cycles.push(new_x);
                 
 
             },
         });
-        
-        let indexes: [i32; 6] = [20, 60, 100, 140, 180, 220];
-        let res:i32 = indexes.iter().map(|i| {
-            let temp_res = i * cycles.get(*i as usize).unwrap();
-            println!("{} * {} = {}", i, cycles.get(*i as usize).unwrap(), temp_res);
-            temp_res
-        }).sum();
+        cycles
+}
 
-        res
+fn pt_1(input: &str) -> i32 {
+
+    let cycles:Vec<i32> = exex_cycles(input);
+        
+    let indexes: [i32; 6] = [20, 60, 100, 140, 180, 220];
+    let res:i32 = indexes.iter().map(|i| {
+        let temp_res = i * cycles.get(*i as usize).unwrap();
+        // println!("{} * {} = {}", i, cycles.get(*i as usize).unwrap(), temp_res);
+        temp_res
+    }).sum();
+
+    res
 
 }
 
