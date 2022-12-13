@@ -3,20 +3,21 @@ use std::{str::FromStr, ops::Div};
 fn main() {
     let input = include_str!("../input.txt");
     println!("Part 1: {}", pt_1(input));
+    println!("Part 2: {}", pt_2(input));
 }
 #[derive(PartialEq)]
 #[derive(Debug)]
 struct MonkeyRules{
     operation: OperationValue,
-    check_test_value: i32,
+    check_test_value: u64,
     if_check_true:usize,
     if_check_false:usize,
 }
 
 #[derive(PartialEq, Debug)]
 enum OperationValue {
-    Add(i32),
-    Multiply(i32),
+    Add(u64),
+    Multiply(u64),
     AddSame,
     MultiplySame,
 }
@@ -31,12 +32,12 @@ impl FromStr for OperationValue {
             "+" => if operation_value == "old" { 
                     Ok(OperationValue::AddSame) 
                 } else {
-                    Ok(OperationValue::Add(operation_value.parse::<i32>().unwrap()))
+                    Ok(OperationValue::Add(operation_value.parse::<u64>().unwrap()))
                 },
             "*" => if operation_value == "old" { 
                 Ok(OperationValue::MultiplySame) 
             } else {
-                Ok(OperationValue::Multiply(operation_value.parse::<i32>().unwrap()))
+                Ok(OperationValue::Multiply(operation_value.parse::<u64>().unwrap()))
             },            
             _ => Err(()),
         }
@@ -50,15 +51,15 @@ fn parse_operation(input: &str) -> OperationValue {
     input.parse::<OperationValue>().unwrap()
 }
 
-fn parse_test_value(input: &str) -> i32 {
-    input.split_once(" by ").unwrap().1.parse::<i32>().unwrap()
+fn parse_test_value(input: &str) -> u64 {
+    input.split_once(" by ").unwrap().1.parse::<u64>().unwrap()
 }
 
 fn parse_throw_to_monkey(input: &str) -> usize {
     input.split_once("throw to monkey ").unwrap().1.parse::<usize>().unwrap()
 }
 
-fn apply_operation(val: i32, operation: &OperationValue) -> i32 {
+fn apply_operation(val: u64, operation: &OperationValue) -> u64 {
     match operation {
         OperationValue::Add(add_val) => val + add_val,
         OperationValue::Multiply(mul_val) => val * mul_val,
@@ -67,9 +68,9 @@ fn apply_operation(val: i32, operation: &OperationValue) -> i32 {
     }
 }
 
-fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<i32>>) {
+fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<u64>>) {
     let mut monkey_rules:Vec<MonkeyRules> = Vec::new();
-    let mut monkey_items:Vec<Vec<i32>> =Vec::new();
+    let mut monkey_items:Vec<Vec<u64>> =Vec::new();
 
     input.split("Monkey ")
         .map(|token|token.lines().collect::<Vec<&str>>())
@@ -77,7 +78,7 @@ fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<i32>>) {
                 lines.len() > 1    
             }).for_each(| lines| {
             
-            let starting_items = lines.get(1).unwrap().split(": ").collect::<Vec<&str>>().get(1).unwrap().split(", ").map(|item|item.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+            let starting_items = lines.get(1).unwrap().split(": ").collect::<Vec<&str>>().get(1).unwrap().split(", ").map(|item|item.parse::<u64>().unwrap()).collect::<Vec<u64>>();
             monkey_items.push(starting_items);
 
             let operation = parse_operation(lines.get(2).unwrap()); 
@@ -96,9 +97,9 @@ fn parse_input(input: &str) -> (Vec<MonkeyRules>,Vec<Vec<i32>>) {
     (monkey_rules, monkey_items)
 }
 
-fn pt_1(input: &str) -> i32 {
+fn pt_1(input: &str) -> u64 {
     let (monkey_rules,monkey_items_init) = parse_input(input);
-    let mut monkey_inspection = monkey_items_init.iter().map(|_mi| 0).collect::<Vec<i32>>(); 
+    let mut monkey_inspection = monkey_items_init.iter().map(|_mi| 0).collect::<Vec<u64>>(); 
     let mut monkey_items = monkey_items_init.clone();
 
     for _round in 0..20 {
@@ -106,14 +107,53 @@ fn pt_1(input: &str) -> i32 {
             let cur_monkey_rule = &monkey_rules[monkey_idx];
             let mut cur_monkey_items = monkey_items[monkey_idx].clone();
             
-            let cur_monkey_inspection = cur_monkey_items.len() as i32;
+            let cur_monkey_inspection = cur_monkey_items.len() as u64;
             monkey_inspection[monkey_idx] += cur_monkey_inspection;
             
             while cur_monkey_items.len() != 0 {
                 let cur_item = cur_monkey_items.pop().unwrap();
                 let mut new_item = apply_operation(cur_item, &cur_monkey_rule.operation);
                 let new_item_float =  new_item as f32;
-                new_item = new_item_float.div(3.0).floor() as i32;
+                new_item = new_item_float.div(3.0).floor() as u64;
+                let test_passed = new_item % cur_monkey_rule.check_test_value == 0;
+                if test_passed {
+                    monkey_items[cur_monkey_rule.if_check_true].push(new_item);
+                } else {
+                    monkey_items[cur_monkey_rule.if_check_false].push(new_item);
+                }
+            }
+            monkey_items[monkey_idx] = cur_monkey_items;
+
+
+        }
+    }
+    monkey_inspection.sort();
+    monkey_inspection.reverse();
+    *monkey_inspection.get(0).unwrap_or(&0) *
+    *monkey_inspection.get(1).unwrap_or(&0)
+    // 0
+}
+
+fn pt_2(input: &str) -> u64 {
+    let (monkey_rules,monkey_items_init) = parse_input(input);
+    let mut monkey_inspection = monkey_items_init.iter().map(|_mi| 0).collect::<Vec<u64>>(); 
+    let mut monkey_items = monkey_items_init.clone();
+
+    for _round in 0..10000 {
+        let modval:u64 = monkey_rules.iter().map(|m| {m.check_test_value } ).product();
+        for monkey_idx in 0..monkey_rules.len() {
+            let cur_monkey_rule = &monkey_rules[monkey_idx];
+            let mut cur_monkey_items = monkey_items[monkey_idx].clone();
+            
+            let cur_monkey_inspection = cur_monkey_items.len() as u64;
+            monkey_inspection[monkey_idx] += cur_monkey_inspection;
+            
+            while cur_monkey_items.len() != 0 {
+                let cur_item = cur_monkey_items.pop().unwrap();
+                let new_item = apply_operation(cur_item, &cur_monkey_rule.operation) % modval;
+                
+                // let new_item_float =  new_item as f32;
+                // new_item = new_item_float.div(3.0).floor() as u64;
                 let test_passed = new_item % cur_monkey_rule.check_test_value == 0;
                 if test_passed {
                     monkey_items[cur_monkey_rule.if_check_true].push(new_item);
@@ -134,12 +174,13 @@ fn pt_1(input: &str) -> i32 {
 }
 
 
+
 #[cfg(test)]
 mod tests_parse_input {
     // use std::ops::Add;
     // use std::ops::Mul;
 
-    use crate::{MonkeyRules, parse_input, parse_operation, parse_test_value,parse_throw_to_monkey,pt_1,OperationValue, apply_operation};
+    use crate::{MonkeyRules, parse_input, parse_operation, parse_test_value,parse_throw_to_monkey,pt_1,OperationValue, apply_operation, pt_2};
 
     #[test]
     fn test_parse_operation_add(){
@@ -249,5 +290,40 @@ Monkey 3:
           
         
         assert_eq!(pt_1(&input), 101*105) //TODO
+    }
+
+    #[test]
+    fn test_pt_2() {
+        let input = 
+"Monkey 0:
+  Starting items: 79, 98
+  Operation: new = old * 19
+  Test: divisible by 23
+    If true: throw to monkey 2
+    If false: throw to monkey 3
+
+Monkey 1:
+  Starting items: 54, 65, 75, 74
+  Operation: new = old + 6
+  Test: divisible by 19
+    If true: throw to monkey 2
+    If false: throw to monkey 0
+
+Monkey 2:
+  Starting items: 79, 60, 97
+  Operation: new = old * old
+  Test: divisible by 13
+    If true: throw to monkey 1
+    If false: throw to monkey 3
+
+Monkey 3:
+  Starting items: 74
+  Operation: new = old + 3
+  Test: divisible by 17
+    If true: throw to monkey 0
+    If false: throw to monkey 1";
+          
+        
+        assert_eq!(pt_2(&input), 52166*52013) //TODO
     }
 }
